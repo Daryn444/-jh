@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Котик и Рыба</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #bde0fe;
+        }
+
+        #game {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #a2d2ff;
+        }
+
+        #cat {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            width: 50px;
+            height: 50px;
+            background: url('https://i.imgur.com/WiP4oNs.png') no-repeat center;
+            background-size: cover;
+            transform: translateX(-50%);
+        }
+
+        #fish, #dog {
+            position: absolute;
+            top: -50px;
+            width: 40px;
+            height: 40px;
+        }
+
+        #fish {
+            background: url('https://i.imgur.com/2DsAig1.png') no-repeat center;
+            background-size: cover;
+        }
+
+        #dog {
+            background: url('https://i.imgur.com/r0T8X2v.png') no-repeat center;
+            background-size: cover;
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="cat"></div>
+        <div id="fish"></div>
+        <div id="dog"></div>
+        <div id="score">Очки: 0</div>
+    </div>
+    <script>
+        const cat = document.getElementById('cat');
+        const fish = document.getElementById('fish');
+        const dog = document.getElementById('dog');
+        const scoreDisplay = document.getElementById('score');
+
+        let score = 0;
+        let isGameOver = false;
+
+        // Управление котом
+        document.addEventListener('keydown', (e) => {
+            const left = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+
+            if (e.key === 'ArrowLeft' && left > 0) {
+                cat.style.left = left - 20 + 'px';
+            }
+            if (e.key === 'ArrowRight' && left < window.innerWidth - 50) {
+                cat.style.left = left + 20 + 'px';
+            }
+        });
+
+        // Движение рыбы и собаки
+        function moveObject(object) {
+            object.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+            object.style.top = '-50px';
+
+            const fallInterval = setInterval(() => {
+                const top = parseInt(window.getComputedStyle(object).getPropertyValue('top'));
+
+                if (top > window.innerHeight) {
+                    clearInterval(fallInterval);
+                    moveObject(object);
+                } else {
+                    object.style.top = top + 5 + 'px';
+                }
+
+                // Проверка столкновения с котом
+                const catLeft = parseInt(window.getComputedStyle(cat).getPropertyValue('left'));
+                const catBottom = parseInt(window.getComputedStyle(cat).getPropertyValue('bottom'));
+
+                const objectLeft = parseInt(window.getComputedStyle(object).getPropertyValue('left'));
+                const objectTop = parseInt(window.getComputedStyle(object).getPropertyValue('top'));
+
+                if (
+                    objectTop > window.innerHeight - catBottom - 50 &&
+                    objectTop < window.innerHeight - catBottom &&
+                    objectLeft > catLeft - 40 &&
+                    objectLeft < catLeft + 50
+                ) {
+                    clearInterval(fallInterval);
+                    if (object === fish) {
+                        score++;
+                        scoreDisplay.textContent = Очки: ${score};
+                        moveObject(object);
+                    } else if (object === dog) {
+                        gameOver();
+                    }
+                }
+            }, 20);
+        }
+
+        // Конец игры
+        function gameOver() {
+            isGameOver = true;
+            alert(Игра окончена! Ваши очки: ${score});
+            window.location.reload();
+        }
+
+        // Запуск игры
+        function startGame() {
+            moveObject(fish);
+            moveObject(dog);
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
